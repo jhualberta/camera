@@ -1,0 +1,68 @@
+0.000039:Start time for this run: Thu Apr 13 13:47:25 2017
+
+0.000271:Detecting ports.
+0.005881:Detecting camera drivers.
+0.021490:Detecting supported cameras.
+0.036443:4 supported cameras detected.
+0.036457:1 Nikon DSC D5000 (PTP mode) usb:001,084
+0.351523:2 Nikon DSC D5000 (PTP mode) usb:001,085
+0.676019:3 Nikon DSC D5000 (PTP mode) usb:001,088
+0.799368:4 Nikon DSC D5000 (PTP mode) usb:001,089
+
+
+1.115606:Camera ID : 5068000(Camera5)
+1.115612:Updating time on camera.
+1.221875:Set time to:Thu Apr 13 13:47:26 2017.
+1.221884:Capturing image:
+1.221896:Capturing image to camera.
+68.885049:File saved to camera as://capt0000.nef
+68.885092:Saving file to disk as: /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//Camera5
+68.885195:Retrieving file //capt0000.nef from camera.
+68.902499:Appending timestamp and suffix to file name.
+68.902573:New file name is /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//Camera5_2017-04-13T13:48:33.nef
+68.902584:Deleting file //capt0000.nef from camera.
+68.956781:Exiting camera.
+
+
+1.115845:Camera ID : 5037503(Camera3)
+1.115854:Updating time on camera.
+1.195137:Set time to:Thu Apr 13 13:47:26 2017.
+1.195142:Capturing image:
+1.195149:Capturing image to camera.
+69.030397:File saved to camera as://capt0001.nef
+69.030422:Saving file to disk as: /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//Camera3
+69.030485:Retrieving file //capt0001.nef from camera.
+69.048451:Appending timestamp and suffix to file name.
+69.048557:New file name is /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//Camera3_2017-04-13T13:48:33.nef
+69.048569:Deleting file //capt0001.nef from camera.
+69.156657:Exiting camera.
+
+
+1.115842:Camera ID : 5068091(Camera1)
+1.115848:Updating time on camera.
+1.122865:Set time to:Thu Apr 13 13:47:26 2017.
+1.122870:Capturing image:
+1.122882:Capturing image to camera.
+69.303031:File saved to camera as://capt0003.nef
+69.303060:Saving file to disk as: /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//Camera1
+69.303155:Retrieving file //capt0003.nef from camera.
+69.322510:Appending timestamp and suffix to file name.
+69.322588:New file name is /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//Camera1_2017-04-13T13:48:33.nef
+69.322597:Deleting file //capt0003.nef from camera.
+69.480419:Exiting camera.
+
+
+1.115845:Camera ID : 5067999(CameraP)
+1.115854:Updating time on camera.
+1.185544:Set time to:Thu Apr 13 13:47:26 2017.
+1.185556:Capturing image:
+1.185569:Capturing image to camera.
+69.307289:File saved to camera as://capt0002.nef
+69.307305:Saving file to disk as: /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//CameraP
+69.307388:Retrieving file //capt0002.nef from camera.
+69.325788:Appending timestamp and suffix to file name.
+69.325822:New file name is /home/camera/captures/rope_net/2017-04-13T17:47:25.289722UTC//CameraP_2017-04-13T13:48:33.nef
+69.325827:Deleting file //capt0002.nef from camera.
+69.332264:Exiting camera.
+
+
