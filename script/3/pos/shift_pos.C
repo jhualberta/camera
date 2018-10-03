@@ -7,7 +7,7 @@ int ip;
 
 	//read the corresponding pixal location
 	ifstream myReadFile2;
-	myReadFile2.open("pos4_r.txt");
+	myReadFile2.open("gimp_coordinate/pos4_r.txt");
 	std::string linep;
 	getline(myReadFile2,linep);
 	ip=0;
@@ -26,6 +26,6 @@ int ip;
    ofstream out2("pos4.txt");
    for(int i=0;i<(sizeof(number)/sizeof(number[0]));i++){
     if(number[i]==0)break;
-    out2<<number[i]<<" "<<xm[i] -2155 <<" "<<-ym[i] + 1434<<endl;
+    out2<<number[i]<<" "<<xm[i] -1434 <<" "<<-ym[i] + 2155<<endl;
    }
 }

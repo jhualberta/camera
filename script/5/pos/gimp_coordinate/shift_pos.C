@@ -7,7 +7,7 @@ int ip;
 
 	//read the corresponding pixal location
 	ifstream myReadFile2;
-	myReadFile2.open("pos4_r.txt");
+	myReadFile2.open("pos3_r.txt");
 	std::string linep;
 	getline(myReadFile2,linep);
 	ip=0;
@@ -23,7 +23,7 @@ int ip;
 
 
    //send the parameters out2
-   ofstream out2("pos4.txt");
+   ofstream out2("pos3.txt");
    for(int i=0;i<(sizeof(number)/sizeof(number[0]));i++){
     if(number[i]==0)break;
     out2<<number[i]<<" "<<xm[i] -2155 <<" "<<-ym[i] + 1434<<endl;

@@ -18,34 +18,46 @@ std::vector<TVector3>cpmt;
 float odis;
 float ndis;
 
-TVector3 xcp(-7256.2,-31.6,-4538.6);       //location of the camera
-float alpha = 1.98e3;                    //magnification constant
-float angle = 13.5/180*TMath::Pi();      //angle of rotation of x-axis in camera with respect to the (0,1,0)
-float rx = 0.5/180*TMath::Pi();         //angle of roation of k on x direction  
-float ry = 0.5/180*TMath::Pi();          //angle of roation of k on x direction 
-int tnumber = 24;
+float alpha = 1.98e3;
+TVector3 xcp(-7256.2,-31.6,-4538.6);
+float angle = 13.5/180*TMath::Pi();  
+float rx = 1.0/180*TMath::Pi();
+float ry = 0.5/180*TMath::Pi();
+ 
 
-ofstream output("cpmt_xyz.txt");
+
+int tnumber = 17;
+ofstream output("../pmt_3d/pmt_3d4.txt");
 ifstream myReadFile;
-myReadFile.open("mpix_pos.txt");
+myReadFile.open("../pos/pos4.txt");
 std::string linep;
 getline(myReadFile,linep);
-float number[24], xc[24], yc[24];
+float number[17], xc[17], yc[17];
 int ip=0;
 if (myReadFile.is_open()) {
-while (!myReadFile.eof()) {
+//while (!myReadFile.eof()) {
 
+//   myReadFile >> number[ip] >> xc[ip] >> yc[ip];
+//   cout<<number[ip]<<" "<<xc[ip]<<" "<<yc[ip]<<endl;
+//   ip++;
+//   cout<<"1"<<endl;
+//}
+while (ip<tnumber){
    myReadFile >> number[ip] >> xc[ip] >> yc[ip];
    cout<<number[ip]<<" "<<xc[ip]<<" "<<yc[ip]<<endl;
    ip++;
+   cout<<"1"<<endl;
 }
 }
+cout<<"out"<<endl;
 myReadFile.close();
 
 
 //load the PMTs position
 std::vector<TVector3>pmtList;	
-FILE *stream=fopen("../../data/database20040923b.dat","r");
+cout<<"start"<<endl;
+FILE *stream=fopen("../../../data/database20040923b.dat","r");
+cout<<"LOADED"<<endl;
 char *line=NULL;
 size_t len=0;
 int r=getline(&line,&len,stream);
@@ -119,17 +131,3 @@ cpmt[l].Print();
 output<<cpmt[l].X()<<" "<<cpmt[l].Y()<<" "<<cpmt[l].Z()<<endl;
 }
 }
-//to find the pmt that best match the selected point on the image
-//direction angle that points to the pmt
-//TVector2 p1(-23.75,60)
-//float angle_p = (1./alpha)*(p1.Mag());
-//TVector3 direction(p1.X(), p1.Y(), -sqrt((TMath::Power(p1.X(),2))+(TMath::Power(p1.Y(),2)))/tan(angle_p));
-//direction = direction.Unit();
-//convert back the direction vector from camera coordinate to the global coordinate
-//express the unit vector in global coordinate in the sysytem of the camera coordinate
-//ay = acos((xcp * north)/(north.Mag()*xcp.Mag()));  //angle between xcp and north in global coordinate
-//TVector3 jg(1, 0, tan(TMath::Pi/2-ay)); jg = jg.Unit();
-//ax = acos((xcp * north)/(north.Mag()*xcp.Mag()));  //angle between x axix of global coordinate and xcp
-
-
-

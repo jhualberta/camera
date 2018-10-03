@@ -1,7 +1,10 @@
-{
-//gPad->SetFixedAspectRatio(1);
 using namespace std;
-
+#include "TVector3.h"
+#include "TF1.h"
+#include "TH1F.h"
+#include "TCanvas.h"
+#include <ios>
+#include <fstream>
 //for the refraction sphere*********************************************
 double n1 = 1.3; double n2 = 1.5; double n3 = 1.3; //refraction indexes
 double loa = 6052; double loc = 6000; double lod = 6052; double lob = 6000; 
@@ -44,126 +47,64 @@ double asp;
 double dix; double diy;
 //double i2d, j2d, k2d;
 double aob2;
-
 //end for the refraction sphere******************************************
-
-
-
-
-
-
-
-
 
 
 //define variables
 float xpix;
 float ypix;
-
+float magx; float magy;
+float dis = 0;
 float view = (TMath::Pi()/2.118);
 TVector3 pmt;
-double theta = 0;
-
-
-ifstream myReadFile;          //load parameters
-//myReadFile.open("paras14_t.txt");
-//float para[14];
-//int in=0;
-//if (myReadFile.is_open()) {
-//while (!myReadFile.eof()) {
-//   myReadFile >> para[in];
-//   in++;
-//}
-//}
-//myReadFile.close();
-
-//  TVector3 xcp(para[0],para[1],para[2]);           //camera position  (7289.7,193.5,4246.6);
-//  double angle = para[3];                    //angle of rotation of the camera with respect to the vertical up
-//  double rx = para[4];                       //angle of roation of k on x and y direction
-//  double ry = para[5];
-//  double mx0 = para[6];                      //adjustment to magnification for x
-//  double mx1 = para[7];
-//  double mx2 = para[8]; 
-//  double mx3 = para[9];
-//  double my0 = para[10];                      //adjustment to magnification for y
-//  double my1 = para[11]; 
-//  double my2 = para[12]; 
-//  double my3 = para[13];
-
-
-
-
-TVector3 xcp(-7256.2,-31.6,-4538.6);       //location of the camera
-float alpha = 1.98e3;                    //magnification constant
-float angle = 13.5/180*TMath::Pi();      //angle of rotation of x-axis in camera with respect to the (0,1,0)
-float rx = 0.5/180*TMath::Pi();         //angle of roation of k on x direction  
-float ry = 0.5/180*TMath::Pi();          //angle of roation of k on x direction 
-int tnumber = 24;
-
-
-
-
-
-
-
-
-
-
+double theta;
+double thetax; double thetay;
+double phi;
 float distance;
 
-//load the PMTs position
+//read the chosen pmts location
 std::vector<TVector3>pmtList;	
-FILE *stream=fopen("../../data/database20040923b.dat","r");
-char *line=NULL;
-size_t len=0;
-int r=getline(&line,&len,stream);
-r=getline(&line,&len,stream);
-for(int iline=0;r>0;iline++){
-  r=getline(&line,&len,stream);
-  if(r==0)continue;
-  if (TString(line,4)==TString("EOHV"))break;
-  if(line[0]=='E'){
-    double x=TString(line+31,8).Atof();
-    double y=TString(line+40,8).Atof();
-    double z=TString(line+49,8).Atof();
-    pmtList.push_back(TVector3(x,y,z));
-  }
-}
+float xc[66], yc[66], zc[66];
+float number[66], xm[66], ym[66];
 
-//form the image
+double calcPixel(double *x, double *p){
+  int iq=floor(x[0]);
+  int q=iq/2;
+  double theta_cam; double phi_cam; double r_cam = 8399.44;
+  theta_cam = p[0];
+  phi_cam = p[1];
+  TVector3 xcp(r_cam*sin(theta_cam)*cos(phi_cam),r_cam*sin(theta_cam)*sin(phi_cam),r_cam*cos(theta_cam));
+  //TVector3 xcp(p[0],p[1],p[2]);        //camera position  (-7256.2,-31.6,-4538.6);
+ 
+  double angle = p[2];                 //angle of rotation of the camera with respect to the vertical up
+  double rx = p[3];                    //angle of roation of k on x and y direction
+  double ry = p[4];
 
-TVector3 north(sin(angle),cos(angle),0);
-TVector3 ko(xcp.Unit());
-TVector3 io(north-(ko * north) * ko); io=io.Unit();
-TVector3 jo(ko.Cross(io));
+  double mx1 = p[5];
+  double my1 = p[6]==0?p[5]:p[6];
+  double mx2 = p[7]; 
+  double mx3 = p[8];
+  double my2 = p[9]; 
+  double my3 = p[10];
 
+  TVector3 north(sin(angle),cos(angle),0);
+  TVector3 ko(xcp.Unit());
+  TVector3 io(north-(ko * north) * ko); io=io.Unit();
+  TVector3 jo(ko.Cross(io));
+  TVector3 k(ko + tan(rx)*io + tan(ry)*jo); k = k.Unit();
+  TVector3 i(north-(k * north) * k); i=i.Unit();
+  TVector3 j(k.Cross(i));
 
-TVector3 k(ko + tan(rx)*io + tan(ry)*jo); k = k.Unit();
-TVector3 i(north-(k * north) * k); i=i.Unit();
-TVector3 j(k.Cross(i));
-
-TH2F picture("HPicture","PMTs in fish eye lens (angle of view 85)(camera P)",4310,-2155,2155,2868,-1434,1434);
-picture.SetMarkerStyle(8);
-picture.SetMarkerSize(0.05);
-for (Int_t q=0;q<pmtList.size(); q++) {
-  pmt = pmtList[q]*10;
+  pmt = pmtList[q];
   TVector3 kp(-pmt.Unit());
   TVector3 ip(north-(kp * north) * kp); ip=ip.Unit();
   TVector3 jp(kp.Cross(ip));
-  //build the PMTs as circle with 18 points
-  for (float u=0;u<18;u++){
-   TVector3 disp(cos(20*u/180*TMath::Pi())*137,sin(20*u/180*TMath::Pi())*137,0);
-   TVector3 pprime(disp.X()*ip+disp.Y()*jp+pmt);
-   //form image on camera
-   TVector3 xprime((pprime-xcp) * i,(pprime-xcp) * j, (pprime-xcp) * k);
-
-
-//******************************************************************************************************
-
-  TVector3 ks(xcp.Cross(pprime)); ks = ks.Unit();
+  TVector3 xprime((pmt-xcp) * i,(pmt-xcp) * j, (pmt-xcp) * k);
+//*****************************************************************************************************************************************
+  TVector3 ks(xcp.Cross(pmt)); ks = ks.Unit();
   TVector3 js(-xcp.Unit());
   TVector3 is(js.Cross(ks)); is = is.Unit();
-  TVector3 p2D(pprime*is, pprime*js, pprime*ks);
+  TVector3 p2D(pmt*is, pmt*js, pmt*ks);
   p2d[0] = p2D.X(); p2d[1] = p2D.Y();
 //cout<<"p2d"<<" "<<p2d[0]<<" "<<p2d[1]<<endl;
   cam3[0] = xcp.X(); cam3[1] = xcp.Y(); cam3[2] = xcp.Z();
@@ -351,59 +292,151 @@ est = est + es;
   //else{
 
   //}
-  dix = mx0 + theta*mx1 + mx2*theta*theta + mx3*theta*theta*theta;
-  diy = my0 + theta*my1 + my2*theta*theta + my3*theta*theta*theta;
+  //dix =  theta*mx1 + mx2*theta*theta + mx3*theta*theta*theta;
+  //diy =  theta*my1 + my2*theta*theta + my3*theta*theta*theta;
+  //xpix = dix*(obxy*i2d);
+  //ypix = diy*(obxy*j2d);
+  //phi = atan((ob*j2d)/(ob*i2d));
+  //thetax = theta*cos(phi); thetay = theta*sin(phi);
 
 
+  thetax = theta*(obxy*i2d); thetay = theta*(obxy*j2d);
+  xpix = thetax*mx1 + mx2*thetax*thetax + mx3*thetax*thetax*thetax;
+  ypix = thetay*my1 + my2*thetay*thetay + my3*thetay*thetay*thetay;
+  //xpix = thetax*mx1;
+  //ypix = thetay*mx1;
 
-  xpix = dix*(obxy*i2d);
-  ypix = diy*(obxy*j2d);
-    if(theta<view){
-     if(xprime.Z()<0){
-      picture.Fill(xpix,ypix);
-     }
-    }
-//cout<<"p2d"<<" "<<p2d[0]<<" "<<p2d[1]<<endl;
-//cout<<"cam"<<" "<<cam[0]<<" "<<cam[1]<<endl;
-//cout<<"pixel"<<" "<<xpix<<" "<<ypix<<endl;
-//cout<<"theta"<<" "<<theta<<endl;
-//cout<<"refracted"<<" "<<xpix<<" "<<ypix<<endl;
-//cout<<"est"<<" "<<est<<endl;
+  if(iq%2==0)return xpix;
+  else return ypix;
 
 
 
   } //end of the if condition checking if light need to be refracted
+//************************************************************************************************************************************************************************************************
+  else{ //the light does not go through the AV
+  theta = abs(atan(sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2)))/(xprime.Z())));
+
+  //dix =  theta*mx1 + mx2*theta*theta + mx3*theta*theta*theta;
+  //diy =  theta*my1 + my2*theta*theta + my3*theta*theta*theta;
+
+  //xpix = dix*(xprime.X()/sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2))));
+  //ypix = diy*(xprime.Y()/sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2))));
+
+  //phi = atan((xprime.Y())/(xprime.X()));
+  //thetax = theta*cos(phi); thetay = theta*sin(phi);
+  TVector3 sub(xprime.X(), xprime.Y(),0);
+  thetax = theta*(sub.Unit().X()); thetay = theta*(sub.Unit().Y());
+  xpix = thetax*mx1 + mx2*thetax*thetax + mx3*thetax*thetax*thetax;
+  ypix = thetay*my1 + my2*thetay*thetay + my3*thetay*thetay*thetay;
+  //xpix = thetax*mx1;
+  //ypix = thetay*mx1;
 
 
-//******************************************************************************************************
-   else{ //the light does not go through the AV
 
-  theta = abs(atan(sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2)))/(-xprime.Z())));
-  //dix = mx0 + theta*mx1 + TMath::Power(theta,2)*mx2 + TMath::Power(theta,3)*mx3;
-  //diy = my0 + theta*my1 + TMath::Power(theta,2)*my2 + TMath::Power(theta,3)*my3;
-  dix = mx0 + theta*mx1 + mx2*theta*theta + mx3*theta*theta*theta;
-  diy = my0 + theta*my1 + my2*theta*theta + my3*theta*theta*theta;
 
-  xpix = dix*(xprime.X()/sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2))));
-  ypix = diy*(xprime.Y()/sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2))));
-  //cout<<"theta"<<" "<<theta<<endl;
-  //cout<<"xprime"<<" "<<xprime.X()<<" "<<xprime.Y()<<" "<<xprime.Z()<<endl;
-  //cout<<"pixel"<<" "<<xpix<<" "<<ypix<<endl;
-    if(theta<view){
-     if(xprime.Z()<0){
-      picture.Fill(xpix,ypix);
-     }
-    }
+  //cout<<"xpix"<<" "<<xpix<<endl;
+  //cout<<"ypix"<<" "<<ypix<<endl;
+  if(iq%2==0)return xpix;
+  else return ypix;
+  } //light does not go through AV
+}
+void myfunc()
+{
+	ifstream myReadFile;
+	myReadFile.open("pmt_xyz.txt");
+	int ip=0;
+	TVector3 temp;
+	if (myReadFile.is_open()) {
+	while (!myReadFile.eof()) {
+	
+	   myReadFile >> xc[ip] >> yc[ip] >> zc[ip];
+	   //cout<<xc[ip]<<" "<<yc[ip]<<" "<<zc[ip]<<endl;
+	   temp.SetX(xc[ip]); temp.SetY(yc[ip]); temp.SetZ(zc[ip]);
+	   pmtList.push_back(temp);
+	   ip++;
+	}
+	}
+	myReadFile.close();
+	//read the corresponding pixal location
+	ifstream myReadFile2;
+	myReadFile2.open("pmt_pos.txt");
+	std::string linep;
+	getline(myReadFile2,linep);
+	ip=0;
+	if (myReadFile2.is_open()) {
+	while (!myReadFile2.eof()) {
 
+   	myReadFile2 >> number[ip] >> xm[ip] >> ym[ip];
+   	//cout<<number[im]<<" "<<xm[im]<<" "<<ym[im]<<endl;
+   	ip++;
+	}	
+	}
+	myReadFile.close();
+
+
+   TCanvas *c1=new TCanvas("CC","CC",1200,800);
+   c1->Divide(1,2);
+   c1->cd(1);
+   TF1 *f1 = new TF1("calcP",calcPixel,0,132,11);
+   f1->SetNpx(132);
+   double p[11]={-2.1988, 0.8375, 2.182, 0.044, -0.175, 1930, 1930, 0, 0, 0, 0};
+   f1->SetParameters(p);
+   //f1->FixParameter(2,0);
+   f1->FixParameter(3,0);
+   f1->FixParameter(4,0);    
+
+
+   for (int ii=7;ii<11;ii++)f1->FixParameter(ii,0); 
+
+
+   f1->Draw();
+   TH1F *h1=new TH1F("h1","test",132,0,132);
+   for(int i=0;i<66;i++){
+      h1->SetBinContent(2*i+1,xm[i]); h1->SetBinContent(2*i+2,ym[i]);
+      //cout<<"xm"<<i<<" "<<xm[i]<<endl;
+      //cout<<"ym"<<i<<" "<<ym[i]<<endl;
    }
-   //test if thepoint is in the angle of view
+   for(int i=1;i<=132;i++)h1->SetBinError(i,30);
+   h1->Fit("calcP");
+  // f1->ReleaseParameter(2);
+  // h1->Fit("calcP");
+   f1->FixParameter(2,f1->GetParameter(2));
+   f1->ReleaseParameter(3);
+   h1->Fit("calcP");
+   f1->FixParameter(3,f1->GetParameter(3));
+   f1->ReleaseParameter(4);
+   h1->Fit("calcP");
+   f1->ReleaseParameter(2);
+   f1->ReleaseParameter(3);
+   h1->Fit("calcP");
+   f1->SetParameter(6,f1->GetParameter(5));
+   f1->ReleaseParameter(6);
+   h1->Fit("calcP");
+   f1->ReleaseParameter(7);
+   h1->Fit("calcP");
+   f1->ReleaseParameter(8);
+   h1->Fit("calcP");
+   f1->ReleaseParameter(9);
+   h1->Fit("calcP");
+   f1->ReleaseParameter(10);
+   h1->Fit("calcP");
 
-   }
+   TH1F *h2=new TH1F("h2","residual",132,0,132);
+   for(int i=0;i<132;i++)h2->SetBinContent(i+1,h1->GetBinContent(i+1)-f1->Eval(i));
+   c1->cd(2); h2->Draw();
+
+
 }
 
-picture.Draw("SAME");
-//picture.Draw();
-c1->SetCanvasSize(4310*0.3,2868*0.3);
-//c1->SaveAs("../../plot/least14_t.png");
 
-}
+
+
+
+
+
+
+
+
+
+
+
