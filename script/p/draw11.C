@@ -1,3 +1,15 @@
+//how this works:
+	//this file take "para11.txt" to get the best fit 11 parameters.
+	//take all the PMTs coordinates in data base "../../data/database20040923b.dat"
+	//calculate and draw the picture
+
+//How to use this file
+	//run ".x image2hist_p.C" in root window to convert the picture into histogram
+	//then run ".x draw11.C" to draw calculated PMTs on top of picture
+
+
+
+
 {
 //gPad->SetFixedAspectRatio(1);
 using namespace std;

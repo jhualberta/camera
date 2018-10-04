@@ -73,13 +73,10 @@ double calcPixel(double *x, double *p){
   double theta_cam; double phi_cam; double r_cam = 8399.44;
   theta_cam = p[0];
   phi_cam = p[1];
-  TVector3 xcp(r_cam*sin(theta_cam)*cos(phi_cam),r_cam*sin(theta_cam)*sin(phi_cam),r_cam*cos(theta_cam));
-  //TVector3 xcp(p[0],p[1],p[2]);        //camera position  (-7256.2,-31.6,-4538.6);
- 
+  TVector3 xcp(r_cam*sin(theta_cam)*cos(phi_cam),r_cam*sin(theta_cam)*sin(phi_cam),r_cam*cos(theta_cam)); 
   double angle = p[2];                 //angle of rotation of the camera with respect to the vertical up
   double rx = p[3];                    //angle of roation of k on x and y direction
   double ry = p[4];
-
   double mx1 = p[5];
   double my1 = p[6]==0?p[5]:p[6];
   double mx2 = p[7]; 

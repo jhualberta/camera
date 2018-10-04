@@ -1,3 +1,36 @@
+//How this file works:
+	//calcPixel11.C reads file pmt_xyz.txt to get the 3D coordinate of selected PMTs
+	//It also reads file pmt_pos.txt to get the pixel position from picture of selected PMTs. 
+	//(3D corrdinates in pmt_pos.txt and pixel position in pmt_pos.txt refer to the same list of PMTs in the same order)
+	//the program use the 11 parameter camera model, by varing the 11 parameter, minimize the difference between the calculated pixel position and measure picture position
+	//program return the best-fit 11 parameters and a plot of the residual
+
+//How to use this file
+	//open root window and do ".L calPixel11.C;"
+	//then do "myfunc();"
+	//run ".x outparas11.C;" and output file of 11 parameters will be created. ("paras11.txt")
+
+
+//note for the 11 parameters
+	//1. camera position(theta)
+	//2. camera position(phi)
+	//3~5. camera direction
+	//6. frist order magnification on x direction
+	//7. frist order magnification on y direction
+	//8. second order magnification on x direction
+	//9. third order magnification on x direction
+	//10. second order magnification on y direction
+	//11. third order magnification on y direction
+
+
+
+
+
+
+
+
+
+
 using namespace std;
 #include "TVector3.h"
 #include "TF1.h"
@@ -343,7 +376,7 @@ est = est + es;
 void myfunc()
 {
 	ifstream myReadFile;
-	myReadFile.open("cpmts.txt");
+	myReadFile.open("pmt_xyz.txt");
 	int ip=0;
 	TVector3 temp;
 	if (myReadFile.is_open()) {
@@ -359,7 +392,7 @@ void myfunc()
 	myReadFile.close();
 	//read the corresponding pixal location
 	ifstream myReadFile2;
-	myReadFile2.open("pos.txt");
+	myReadFile2.open("pmt_pos.txt");
 	std::string linep;
 	getline(myReadFile2,linep);
 	ip=0;
