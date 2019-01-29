@@ -47,8 +47,6 @@ double asp;
 double dix; double diy;
 //double i2d, j2d, k2d;
 double aob2;
-//end for the refraction sphere******************************************
-
 
 //define variables
 float xpix[36000];
@@ -57,6 +55,7 @@ float magx; float magy;
 float dis = 0;
 float view = (TMath::Pi()/2.118);
 TVector3 pmt;
+TVector3 av_pos;
 double theta;
 double thetax; double thetay;
 double phi;
@@ -64,9 +63,10 @@ float distance;
 
 //read the chosen pmts location
 std::vector<TVector3>pmtList;	
-float xc[4], yc[4], zc[4];
-//float number[4], xm[4], ym[4];
-
+std::vector<TVector3>avList;
+float xc[48], yc[48], zc[48];
+float number[4], xm[4], ym[4];
+int iii;
 double calcAV(double *x, double *p){
   int iq=floor(x[0]);
   int q=iq/2;
@@ -75,17 +75,17 @@ double calcAV(double *x, double *p){
   double av3 = p[2];
 
 ifstream myReadFilep;
-myReadFile.open("paras11.txt");
+myReadFilep.open("paras11.txt");
 float pp[11];
 int in=0;
 if (myReadFilep.is_open()) {
 while (!myReadFilep.eof()) {
 
-   myReadFilep >> p[in];
+   myReadFilep >> pp[in];
    in++;
 }
 }
-myReadFile.close();
+myReadFilep.close();
 
 
   double theta_cam; double phi_cam; double r_cam = 8399.44;
@@ -102,7 +102,7 @@ myReadFile.close();
   double my2 = pp[9]; 
   double my3 = pp[10];
 
-
+//cout<<"loaded parameters"<<endl;
 
   TVector3 north(sin(angle),cos(angle),0);
   TVector3 ko(xcp.Unit());
@@ -111,245 +111,9 @@ myReadFile.close();
   TVector3 k(ko + tan(rx)*io + tan(ry)*jo); k = k.Unit();
   TVector3 i(north-(k * north) * k); i=i.Unit();
   TVector3 j(k.Cross(i));
-
   pmt = pmtList[q];
-  TVector3 kp(-pmt.Unit());
-  TVector3 ip(north-(kp * north) * kp); ip=ip.Unit();
-  TVector3 jp(kp.Cross(ip));
-  TVector3 xprime((pmt-xcp) * i,(pmt-xcp) * j, (pmt-xcp) * k);
-//*****************************************************************************************************************************************
-  TVector3 ks(xcp.Cross(pmt)); ks = ks.Unit();
-  TVector3 js(-xcp.Unit());
-  TVector3 is(js.Cross(ks)); is = is.Unit();
-  TVector3 p2D(pmt*is, pmt*js, pmt*ks);
-  p2d[0] = p2D.X(); p2d[1] = p2D.Y();
-//cout<<"p2d"<<" "<<p2d[0]<<" "<<p2d[1]<<endl;
-  cam3[0] = xcp.X(); cam3[1] = xcp.Y(); cam3[2] = xcp.Z();
-  cam[1] = -sqrt(cam3[0]*cam3[0] + cam3[1]*cam3[1] + cam3[2]*cam3[2]);
+  av_pos = avList[q];
 
-  sp[0] = abs(p2d[0]); sp[1] = p2d[1] - cam[1];
-  asp = atan(sp[0]/sp[1]);
-//  cout<<asp<<endl;
-//cout<<"pprime"<<" "<<pprime.X()<<" "<<pprime.Y()<<" "<<pprime.Z()<<endl;
-  if ((sp[0]*-cam[1])/sqrt(sp[0]*sp[0]+sp[1]*sp[1])<loa){   //if condition checking if light need to be refracted
-
-
-est = 0;
-es = 0; //set a initial error
-esn = 1;
-n = 0;
-while(esn>0.0000000001){
-n = n + 1;
-if(n>20){
-break;
-}
-//cout<<"                     into the loop number"<<n<<endl;
-
-if(p2d[0]<0){
-	ain1 = atan((cam[1]-p2d[1])/(cam[0]-est-p2d[0]));  
-}
-else{
-	ain1 = atan((cam[1]-p2d[1])/(cam[0]-est-p2d[0])) - TMath::Pi();
-}
-
-//the first triangle
-aopm = abs(atan(p2d[1]/p2d[0]));
-//cout<<"ain1"<<" "<<ain1<<endl;
-//cout<<"aopm"<<" "<<aopm<<endl;
-lop = sqrt(p2d[0]*p2d[0]+p2d[1]*p2d[1]);
-//ain1 = atan(p2d[0]/p2d[1])+theta1 - (TMath::Pi()/2);
-
-if (p2d[0] > 0){
-theta1 = (TMath::Pi())-abs(ain1)-aopm;
-}
-else{
-theta1 = abs(ain1) - aopm;
-}
-
-//cout<<"theta1"<<" "<<theta1<<endl;
-//cout<<"lop"<<" "<<lop<<endl;
-//cout<<"loa"<<" "<<loa<<endl;
-//lap = lop*cos(theta1) + sqrt(loa*loa+lop*lop*(cos(theta1)*cos(theta1)-1)); //or
-lap =lop*cos(theta1) - sqrt(loa*loa+lop*lop*(cos(theta1)*cos(theta1)-1));
-//cout<<"lap"<<" "<<lap<<endl;
-a[0] = p2d[0] + cos(ain1)*lap; 
-a[1] = p2d[1] + sin(ain1)*lap;
-//cout<<"coordinate of a"<<" "<<a[0]<<" "<<a[1]<<endl;
-theta2 = acos((lop*lop+loa*loa-lap*lap)/(2*lop*loa));
-//cout<<"theta2"<<" "<<theta2<<endl;
-theta3 = theta1 +theta2;
-if(theta3<0){
-//cout<<"theta3"<<" "<<theta3<<endl;
-}
-theta4 = asin((sin(theta3)*n1)/(n2));  //apply snell's law
-aoa = asin(a[1]/loa);
-//cout<<"aoa"<<" "<<aob<<endl;
-if (theta4>1.04848){
-//cout<<"theta4"<<" "<<theta4<<endl;
-//break;
-}
-
-if (theta4<asin(lob/loa)){        //check if the light go into the ball
-
-  // the second triangle
-  lba = loa*cos(theta4) - sqrt(lob*lob+loa*loa*(cos(theta4)*cos(theta4)-1));  //apply cosine rule
-  //cout<<"lba"<<" "<<lba<<endl;
-  theta5 = acos((loa*loa+lob*lob-lba*lba)/(2*loa*lob));  //apply cosine rule
-  //cout<<"theta5"<<" "<<theta5<<endl;
-  theta6 = theta4 + theta5;
-  //cout<<"theta6"<<" "<<theta6<<endl;
-  theta7 = asin((sin(theta6)*n2)/(n3)); 
-  //cout<<"theta7"<<" "<<theta7<<endl;
-  //inner radius of sphere
-  aoa = asin(a[1]/loa);
-  aob = aoa - theta5;
-
-  if(p2d[0]>0){
-    b[0] = cos(aob)*lob;
-    b[1] = sin(aob)*lob;
-    ain2 = (theta7 + aob) -(TMath::Pi());  //second incidence angle wrt x axis 
-  }
-  else{
-    b[0] = -cos(aob)*lob;
-    b[1] = sin(aob)*lob;
-    //ain2 = -(theta7 + aob);   //second incidence angle wrt x axis 
-    ain2 = -(theta7 + aob);
-  }
-  //cout<<"coordinate of b"<<" "<<b[0]<<" "<<b[1]<<endl; 
-  ///cout<<"ain2"<<" "<<ain2<<endl; 
-  aboc = (TMath::Pi()) - theta7-theta7;
-  //cout<<"aboc"<<" "<<aboc<<endl;
-  lbc = sqrt(lob*lob+loc*loc-2*lob*loc*cos(aboc));
-  //cout<<"lbc"<<" "<<lbc<<endl;
-  c[0] = b[0] + cos(ain2)*lbc; c[1] = b[1] + sin(ain2)*lbc;
-  //cout<<"coordinate of c"<<" "<<c[0]<<" "<<c[1]<<endl;
-  theta8 = asin(sin(theta7)*(n3/n2));
-  aocd = (TMath::Pi()) - theta8;
-  lcd = sqrt(lod*lod+loc*loc*(cos(aocd)*cos(aocd)-1)) + loc*cos(aocd);
-  //cout<<"lcd"<<" "<<lcd<<endl;
-  theta9 = acos((loc*loc+lod*lod-lcd*lcd)/(2*loc*lod));
-  //cout<<"theta9"<<" "<<theta9<<endl;
-  aoc = -acos(c[0]/loc);
-  if (p2d[0]>0){	
-    aod = aoc-theta9;  //angle of od wrt x axis	
-  }
-  else{
-    aod = aoc + theta9;	
-  }  
-
-  //cout<<"aod"<<" "<<aod<<endl;
-  theta10 = theta8 - theta9;
-  d[0] = cos(aod)*lod; d[1] = sin(aod)*lod;
-  //cout<<"coordinate of d"<<" "<<d[0]<<" "<<d[1]<<endl;
-}
-
-else{                //light does not go into the cavity
-  theta10 = theta4;
-  if(p2d[0]>0){
-    aod = -(TMath::Pi()-theta4-theta10)+aoa;
-    //cout<<"theta4"<<" "<<theta4<<endl;
-    //cout<<"aoa"<<" "<<aoa<<endl;
-    //cout<<"aod+"<<" "<<aod<<endl;
-    
-  }
-  else{
-    aod = aoa + (TMath::Pi()-theta4-theta10);
-    //cout<<"theta4"<<" "<<theta4<<endl;
-    //cout<<"aoa"<<" "<<aoa<<endl;
-    //cout<<"aod-"<<" "<<aod<<endl;
-  }	
-  d[0] = cos(aod)*lod; d[1] = sin(aod)*lod;
-  //cout<<"coordinate of d"<<" "<<d[0]<<" "<<d[1]<<endl;
-}	
-
-
-//cout<<"aoc"<<" "<<aoc<<endl;
-//cout<<"coordinate of d"<<" "<<d[0]<<" "<<d[1]<<endl;
-//the last refraction
-
-theta11 = asin(sin(theta10)*(n2/n1));
-//cout<<"theta11"<<" "<<theta11<<endl;
-//the camera
-aode = (TMath::Pi()) - theta11;
-ados = abs((TMath::Pi()/2) - abs(aod));
-//cout<<"ados"<<" "<<ados<<endl;
-if(p2d[0]>0){
-	out = -((TMath::Pi()) - abs(aode) - abs(ados))-(TMath::Pi()/2);
-}
-else{
-	out = -(TMath::Pi()/2) + ((TMath::Pi()) - abs(aode) - abs(ados));
-}
-
-es = (1/(tan(out)))  *  (cam[1]-d[1])  +d[0];
-//cout<<"es"<<" "<<es<<endl;
-esn = abs(es);
-//cout<<"esn"<<" "<<esn<<endl;
-est = est + es;
-} //out of the minimizing loop
-//cout<<"out"<<" "<<out<<endl;
-
- TVector3 ob(-cos(out), -sin(out), 0); 
- aob2 = abs(abs(out)-TMath::Pi()/2);
- //aob2 = atan(abs(ob.X()/abs(ob.Y())));
- // cout<<"aob2"<<" "<<aob2<<endl;
-  //if (sin(aob2)*abs(cam[1])>loa){ 
-  if (aob2>asin(loa/-cam[1])){ 
-  //cout<<"aob2"<<aob2<<endl;
-  //break;
-  }
-  TVector3 i2d(i*is, i*js, i*ks); i2d = i2d.Unit();
-  TVector3 j2d(j*is, j*js, j*ks); j2d = j2d.Unit();
-  TVector3 k2d(k*is, k*js, k*ks); k2d = k2d.Unit();
-   //cout<<"k2d"<<" "<<k2d.X()<<" "<<k2d.Y()<<" "<<k2d.Z()<<" "<<endl;
-  theta = abs(ob.Angle(-k2d));
-  TVector3 obxy(ob-k2d*(ob*k2d)); obxy = obxy.Unit();
-  //if (obxy.Angle(j2d) < TMath::Pi()/2){
-
-  //}
-  //else{
-
-  //}
-  //dix =  theta*mx1 + mx2*theta*theta + mx3*theta*theta*theta;
-  //diy =  theta*my1 + my2*theta*theta + my3*theta*theta*theta;
-  //xpix = dix*(obxy*i2d);
-  //ypix = diy*(obxy*j2d);
-  //phi = atan((ob*j2d)/(ob*i2d));
-  //thetax = theta*cos(phi); thetay = theta*sin(phi);
-
-
-  thetax = theta*(obxy*i2d); thetay = theta*(obxy*j2d);
-  xpix = thetax*mx1 + mx2*thetax*thetax + mx3*thetax*thetax*thetax;
-  ypix = thetay*my1 + my2*thetay*thetay + my3*thetay*thetay*thetay;
-  //xpix = thetax*mx1;
-  //ypix = thetay*mx1;
-
-
-
-  } //end of the if condition checking if light need to be refracted
-//************************************************************************************************************************************************************************************************
-  else{ //the light does not go through the AV
-  theta = abs(atan(sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2)))/(xprime.Z())));
-
-  //dix =  theta*mx1 + mx2*theta*theta + mx3*theta*theta*theta;
-  //diy =  theta*my1 + my2*theta*theta + my3*theta*theta*theta;
-
-  //xpix = dix*(xprime.X()/sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2))));
-  //ypix = diy*(xprime.Y()/sqrt((TMath::Power(xprime.X(),2))+(TMath::Power(xprime.Y(),2))));
-
-  //phi = atan((xprime.Y())/(xprime.X()));
-  //thetax = theta*cos(phi); thetay = theta*sin(phi);
-  TVector3 sub(xprime.X(), xprime.Y(),0);
-  thetax = theta*(sub.Unit().X()); thetay = theta*(sub.Unit().Y());
-//  xpix = thetax*mx1 + mx2*thetax*thetax + mx3*thetax*thetax*thetax;
-//  ypix = thetay*my1 + my2*thetay*thetay + my3*thetay*thetay*thetay;
-  //xpix = thetax*mx1;
-  //ypix = thetay*mx1;
-
-
-
-//draw AV 3 times
-
-cout<<"xcp"<<" "<<xcp.X()<<" "<<xcp.Y()<<" "<<xcp.Z()<<endl;
 
 float check;
 float sxa;
@@ -357,23 +121,23 @@ float sx;
 float irad;
 float aq;
 float sdis = 1000;
-double qq;
-rad = 6060;
+
+double rad = 6060;
 TVector3 av(av1,av2,av3);
 TVector3 ap(xcp-av);
 sxa = asin(rad/(ap.Mag()));
 sx = sqrt(((ap.Mag())*(ap.Mag()))-rad*rad);
 irad = sin(sxa)*sx;
 aq = ap.Mag() - cos(sxa)*sx;
-TVector3 q(av+aq*(ap.Unit()));
+TVector3 qq(av+aq*(ap.Unit()));
 
-TVector3 kp((av-q).Unit());
+TVector3 kp((av-qq).Unit());
 TVector3 ip(north-(kp * north) * kp); ip=ip.Unit();
 TVector3 jp(kp.Cross(ip));
 
   for(int ii=0;ii<36000;ii++){
    TVector3 avline(cos(0.01*ii/180*TMath::Pi())*(irad),sin(0.01*ii/180*TMath::Pi())*(irad),0);
-   TVector3 avcircle(avline.X()*ip+avline.Y()*jp+q);
+   TVector3 avcircle(avline.X()*ip+avline.Y()*jp+qq);
    check = (xcp-avcircle).Dot(avcircle-av);
    TVector3 avprime((avcircle-xcp) * i,(avcircle-xcp) * j, (avcircle-xcp) * k);
    theta = abs(atan(sqrt((TMath::Power(avprime.X(),2))+(TMath::Power(avprime.Y(),2)))/(-avprime.Z())));
@@ -385,25 +149,17 @@ TVector3 jp(kp.Cross(ip));
       if(avprime.Z()<0){
        //picture.Fill(xpix,ypix); 
        //av1   
-       dis = (xm[q]-xpix)*(xm[q]-xpix)+(ym[q]-ypix)(ym[q]-ypix);
+       dis = (av_pos.Y()-xpix[ii])*(av_pos.Y()-xpix[ii])+(av_pos.Z()-ypix[ii])*(av_pos.Z()-ypix[ii]);
        if(dis<sdis){
          sdis = dis;
          iii = ii;
        }
-
       }
      }
-     if(iq%2==0)return xpix[iii];
-     else return ypix[iii];
    }
-
-
-
-
-
-
-
-  } //light does not go through AV
+   if(iq%2==0)return xpix[iii];
+   else return ypix[iii];
+   cout<<"xpix"<<xpix[iii]<<"ypix"<<ypix[iii]<<endl;
 }
 void myfunc()
 {
@@ -431,9 +187,10 @@ void myfunc()
 	if (myReadFile2.is_open()) {
 	while (!myReadFile2.eof()) {
 
-   	myReadFile2 >> number[ip] >> xm[ip] >> ym[ip];
-   	//cout<<number[im]<<" "<<xm[im]<<" "<<ym[im]<<endl;
-   	ip++;
+       myReadFile2 >> number[ip] >> xm[ip] >> ym[ip];
+	   temp.SetX(number[ip]); temp.SetY(xm[ip]); temp.SetZ(ym[ip]);
+	   avList.push_back(temp);
+   	   ip++;
 	}	
 	}
 	myReadFile2.close();
@@ -452,11 +209,9 @@ void myfunc()
    TH1F *h1=new TH1F("h1","test",8,0,8);
    for(int i=0;i<4;i++){
       h1->SetBinContent(2*i+1,xm[i]); h1->SetBinContent(2*i+2,ym[i]);
-      //cout<<"xm"<<i<<" "<<xm[i]<<endl;
-      //cout<<"ym"<<i<<" "<<ym[i]<<endl;
    }
    for(int i=1;i<=8;i++)h1->SetBinError(i,30);
-   h1->Fit("calcP");
+   h1->Fit("calcA");
 
   
 

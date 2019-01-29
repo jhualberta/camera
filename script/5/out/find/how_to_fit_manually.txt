@@ -1,0 +1,2 @@
+want to move circles up       ----------> ry++
+want to move circles right    ----------> rx++

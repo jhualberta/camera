@@ -410,7 +410,8 @@ float aq;
 rad = 5960;
 
 for(int h=0; h<3; h++){
-TVector3 av(20,35,80);
+//TVector3 av(20,35,80);
+TVector3 av(0,-1.9,92);
 rad = rad+100;
 
 TVector3 ap(xcp-av);

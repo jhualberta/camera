@@ -354,6 +354,7 @@ void myfunc()
 	   temp.SetX(xc[ip]); temp.SetY(yc[ip]); temp.SetZ(zc[ip]);
 	   pmtList.push_back(temp);
 	   ip++;
+
 	}
 	}
 	myReadFile.close();
@@ -367,11 +368,11 @@ void myfunc()
 	while (!myReadFile2.eof()) {
 
    	myReadFile2 >> number[ip] >> xm[ip] >> ym[ip];
-   	//cout<<number[im]<<" "<<xm[im]<<" "<<ym[im]<<endl;
+   	cout<<number[ip]<<" "<<xm[ip]<<" "<<ym[ip]<<endl;
    	ip++;
 	}	
 	}
-	myReadFile.close();
+	myReadFile2.close();
 
 
    TCanvas *c1=new TCanvas("CC","CC",1200,800);

@@ -14,7 +14,7 @@ double theta = 0;
 std::vector<TVector3>pmtList;	
 
 ifstream myReadFile;
-myReadFile.open("../../paras14.txt");
+myReadFile.open("../../o_paras/paras14.txt");
 float para[14];
 int ip=0;
 if (myReadFile.is_open()) {
@@ -42,12 +42,12 @@ float d;
 double deltax;
 
 ifstream myReadFile2;
-myReadFile2.open("../../cpmts.txt");
-float xc[136], yc[136], zc[136];
+myReadFile2.open("../../pmt_xyz.txt");
+float xc[186], yc[186], zc[186];
 int ip2=0;
 TVector3 temp;
 if (myReadFile2.is_open()) {
-while (ip2<136) {
+while (ip2<186) {
 
    myReadFile2 >> xc[ip2] >> yc[ip2] >> zc[ip2];
    //cout<<xc[ip2]<<" "<<yc[ip2]<<" "<<zc[ip2]<<endl;
@@ -58,13 +58,13 @@ while (ip2<136) {
 }myReadFile2.close();
 
 ifstream myReadFile3;
-myReadFile3.open("../../pos.txt");
+myReadFile3.open("../../pmt_pos.txt");
 std::string linep;
 getline(myReadFile3,linep);
-float number[136], xc2[136], yc2[136];
+float number[186], xc2[186], yc2[186];
 int ip3=0;
 if (myReadFile3.is_open()) {
-while (ip3<136.) {
+while (ip3<186.) {
 
    myReadFile3 >> number[ip3] >> xc2[ip3] >> yc2[ip3];
    //cout<<xc2[ip3]<<endl;
@@ -93,7 +93,7 @@ h->SetMarkerSize(2);
 double r;
 double tr = 0;
 int q = 0;
-while (q<136) {
+while (q<186) {
   pmt = pmtList[q];
   TVector3 kp(-pmt.Unit());
   TVector3 ip3(north-(kp * north) * kp); ip3=ip3.Unit();
@@ -129,7 +129,7 @@ h->Draw("colz");
 c1->SetCanvasSize(4310*0.2,2868*0.2);
 h->GetXaxis()->SetTitle("x pixel position");
 h->GetYaxis()->SetTitle("y pixel position");
-h->SetTitle("14 parameters delta x");
+h->SetTitle("residual plot of camera P");
 
 
 //TF1*f = new TH1("func","y",-2000.,2000);
