@@ -186,7 +186,7 @@ cout<<"i"<<" "<<i<<endl;
      if (i==1){pmtList_1.push_back(TVector3(pmt_3dx[in][i],pmt_3dy[in][i],pmt_3dz[in][i]));}
      if (i==2){pmtList_3.push_back(TVector3(pmt_3dx[in][i],pmt_3dy[in][i],pmt_3dz[in][i]));}
      if (i==3){pmtList_5.push_back(TVector3(pmt_3dx[in][i],pmt_3dy[in][i],pmt_3dz[in][i]));}
-     cout<<"x = "<<pmt_3dx[in][i]<<" y = "<<pmt_3dy[in][i]<<" z = "<<pmt_3dz[in][i]<<" in = "<<in<<endl;
+     //cout<<"x = "<<pmt_3dx[in][i]<<" y = "<<pmt_3dy[in][i]<<" z = "<<pmt_3dz[in][i]<<" in = "<<in<<endl;
      in++;
   }
   }
@@ -444,11 +444,7 @@ est = est + es;
 
 
 
-    if(i==0){
-		  residualpx->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltax);
-		  cout<<"deltax="<<deltax<<" deltay="<<deltay<<endl;
-		  //cout<<"pos x="<<(pmt_pixx[q]+2155)/(4310/bin)<<" y="<<(pmt_pixy[q]+1434)/(2868/bin)<<endl;
-		}
+    if(i==0){residualpx->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltax);}
     if(i==1){residual1x->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltax);}
     if(i==2){residual3x->SetBinContent((pmt_pixx[q]+1434)/(2868/bin),(pmt_pixy[q]+2155)/(4310/bin),deltax);}
     if(i==3){residual5x->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltax);}
@@ -472,8 +468,8 @@ est = est + es;
 
    }//end for all pmts
 }//end of loop over 4 cameras
-residual1x->Draw("colz");
-//picturep.Draw();
+residual5x->Draw("colz");
+//picture3.Draw();
 }//end of the file
 
 
