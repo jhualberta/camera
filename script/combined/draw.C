@@ -3,6 +3,8 @@ using namespace std;
 gStyle->SetOptStat("0");
 double n1 = 1.3; double n2 = 1.5; double n3 = 1.3; //refraction indexes
 double loa = 6052; double loc = 6000; double lod = 6052; double lob = 6000; 
+TVector3 av(120,-33,80);
+rad = 6060;
 int bin = 100;
 double p2d[2];
 double cam3[3];
@@ -96,6 +98,19 @@ double thetax;
 double thetay;
 int in;
 TVector3 temp;
+
+TVector3 ap;
+TVector3 avline;
+TVector3 avcircle;
+TVector3 avprime;
+TVector3 suba;
+TVector3 qa;
+float check;
+float sxa;
+float sx;
+float irad;
+float aq;
+
 
 //read the parameters
 cout<<"start"<<endl;
@@ -420,9 +435,69 @@ est = est + es;
 
    }//end for all pmts
 }
+
+
+//draw the AV position
+ap = (xcp-av);
+sxa = asin(rad/(ap.Mag()));
+sx = sqrt(((ap.Mag())*(ap.Mag()))-rad*rad);
+irad = sin(sxa)*sx;
+aq = ap.Mag() - cos(sxa)*sx;
+qa = (av+aq*(ap.Unit()));
+
+kp = ((av-qa).Unit());
+ip = (north-(kp * north) * kp); ip=ip.Unit();
+jp = (kp.Cross(ip));
+
+  for (float ii=0;ii<36000;ii++){
+   avline.SetXYZ(cos(0.01*ii/180*TMath::Pi())*(irad),sin(0.01*ii/180*TMath::Pi())*(irad),0);
+   avcircle = (avline.X()*ip+avline.Y()*jp+qa);
+     check = (xcp-avcircle).Dot(avcircle-av);
+     //cout<<"check"<<" "<<check<<endl;
+     //cout<<"avcircle"<<" "<<avcircle.X()<<" "<<avcircle.Y()<<" "<<avcircle.Z()<<endl;
+     
+   //form image on camera
+  avprime.SetXYZ((avcircle-xcp) * ispace,(avcircle-xcp) * j, (avcircle-xcp) * k);
+  theta = abs(atan(sqrt((TMath::Power(avprime.X(),2))+(TMath::Power(avprime.Y(),2)))/(-avprime.Z())));
+  suba.SetXYZ(avprime.X(), avprime.Y(),0);
+  thetax = theta*(suba.Unit().X()); thetay = theta*(suba.Unit().Y());
+	  xpix = thetax*mx1[i] + mx2[i]*thetax*thetax + mx3[i]*thetax*thetax*thetax;
+	  ypix = thetay*my1[i] + my2[i]*thetay*thetay + my3[i]*thetay*thetay*thetay;
+
+      if(theta<view){
+       if(xprime.Z()<0){
+        if(i==0){picturep.Fill(xpix,ypix);}
+        if(i==1){picture1.Fill(xpix,ypix);}
+        if(i==2){picture3.Fill(xpix,ypix);}
+        if(i==3){picture5.Fill(xpix,ypix);}
+       
+      }
+    }
+  }
+
+
+
+
+
+
 }//end of loop over 4 cameras
 
-picture1.Draw("SAME");
+
+
+
+
+
+
+
+
+
+
+picturep.Draw("SAME");
+//picture1.Draw("SAME");
+//picture3.Draw("SAME");
+//picture5.Draw("SAME");
+
+
 }//end of the file
 
 
