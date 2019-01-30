@@ -449,10 +449,10 @@ est = est + es;
     if(i==2){residual3x->SetBinContent((pmt_pixx[q]+1434)/(2868/bin),(pmt_pixy[q]+2155)/(4310/bin),deltax);}
     if(i==3){residual5x->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltax);}
 
-    if(i==0){residualpy->SetBinContent((pmt_pixy[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltay);}
-    if(i==1){residual1y->SetBinContent((pmt_pixy[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltay);}
-    if(i==2){residual3y->SetBinContent((pmt_pixy[q]+1434)/(2868/bin),(pmt_pixy[q]+2155)/(4310/bin),deltay);}
-    if(i==3){residual5y->SetBinContent((pmt_pixy[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltay);}
+    if(i==0){residualpy->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltay);}
+    if(i==1){residual1y->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltay);}
+    if(i==2){residual3y->SetBinContent((pmt_pixx[q]+1434)/(2868/bin),(pmt_pixy[q]+2155)/(4310/bin),deltay);}
+    if(i==3){residual5y->SetBinContent((pmt_pixx[q]+2155)/(4310/bin),(pmt_pixy[q]+1434)/(2868/bin),deltay);}
 	//cout<<"deltax="<<deltax<<" deltay="<<deltay<<endl;
 	//cout<<"pos x="<<(pmt_pixx[q]+2155)/(4310/bin)<<" y="<<(pmt_pixy[q]+1434)/(2868/bin)<<endl;
 
@@ -468,8 +468,18 @@ est = est + es;
 
    }//end for all pmts
 }//end of loop over 4 cameras
-residual5x->Draw("colz");
-//picture3.Draw();
+
+
+//residualpx->Draw("colz");
+//residual1x->Draw("colz");
+//residual3x->Draw("colz");
+//residual5x->Draw("colz");
+
+residualpy->Draw("colz");
+//residual1y->Draw("colz");
+//residual3y->Draw("colz");
+//residual5y->Draw("colz");
+
 }//end of the file
 
 
